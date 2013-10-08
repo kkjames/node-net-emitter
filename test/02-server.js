@@ -154,7 +154,9 @@
 		var server = new Server({port: 0, host: '127.0.0.1'});
 
 		server.listen(function() {
-			t.equal(this.address().address,	'127.0.0.1',	'Server is bound to localhost');
+			t.equal(this.address().address,	'127.0.0.1',		'Server is bound to localhost');
+			t.equal(this.localAddress, this.address().address,	'Server returns the correct localAddress property');
+			t.equal(this.localPort, this.address().port,		'Server returns the correct localPort property');
 
 			this.close();
 			this.once('close', function() {
@@ -167,7 +169,9 @@
 		var server = new Server({path: '/tmp/net-emitter.sock'});
 
 		server.listen(function() {
-			t.equal(this.address(),	'/tmp/net-emitter.sock',	'Server address returns socket path');
+			t.equal(this.address(),		'/tmp/net-emitter.sock',	'Server address returns socket path');
+			t.equal(this.localAddress,	this.address(),				'Server returns the correct localAddress for a socket');
+			t.false(this.localPort,		'Server does not return a port when using a socket');
 
 			t.true(fs.existsSync(this.address()),	'Server socket exists');
 
