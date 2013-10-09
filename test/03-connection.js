@@ -209,6 +209,38 @@
 		});
 	});
 
+	test('Test creating a connecton using an unsupported encoding', function(t) {
+		var connection;
+
+		try {
+			connection = new Connection({port: port, encoding: 'ebcdic'});
+			t.fail('Connection should not support "ebcdic" encoding');
+		} catch (e) {
+			t.ok(e, 'Connection does not support invalid encoding');
+		}
+
+		t.end();
+	});
+
+	test('Test creating a connection using supported encodings', function(t) {
+		// Taken from https://github.com/joyent/node/blob/v0.10.20/lib/buffer.js
+		var encodings = ['hex', 'utf8', 'utf-8', 'ascii', 'binary', 'base64', 'ucs2', 'ucs-2', 'utf16le', 'utf-16le', 'raw'];
+
+		for (var i = 0; i < encodings.length; i++) {
+			var encoding = encodings[i];
+
+			try {
+				var connection = new Connection({port: port, encoding: encoding});
+				connection.destroy();
+				t.ok(connection, 'Connection supports encoding "' + encoding + '"');
+			} catch (e) {
+				t.fail(e);
+			}
+		}
+
+		t.end();
+	});
+
 	test('Clean up', function(t) {
 		server.close(function() {
 			t.end();
