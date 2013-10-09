@@ -58,6 +58,57 @@
 		});
 	});
 
+	test('Ensure the bytesRead property', function(t) {
+		var connection = new Connection({port: port}), props;
+
+		connection.once('connect', function() {
+			props = Object.getOwnPropertyDescriptor(connection, 'bytesRead');
+			t.true(props.enumerable,		'bytesRead property is not enumerable');
+			t.false(props.writable,			'bytesRead property is not writable');
+			t.false(props.configurable,		'bytesRead property is not configurable');
+			t.type(props.get, 'function',	'bytesRead property has a getter');
+			t.equal(props.set, undefined,	'bytesRead property does not have a setter');
+			t.equal(this.bytesRead,	0,		'Connection has zero bytes read');
+
+			connection.once('pong', function() {
+				// The overhead comes from the fact that 'pong' is converted
+				// into a JSON "[ 'pong' ]" during the network serialization
+				// process.
+				t.equal(this.bytesRead,	9,	'Connection has 9 bytes read');
+			});
+
+			server.emit('pong');
+
+			connection.destroy();
+		}).once('close', function() {
+			t.end();
+		});
+	});
+
+	test('Ensure the bytesWritten property', function(t) {
+		var connection = new Connection({port: port}), props;
+
+		connection.once('connect', function() {
+			props = Object.getOwnPropertyDescriptor(connection, 'bytesWritten');
+			t.true(props.enumerable,		'bytesWritten property is not enumerable');
+			t.false(props.writable,			'bytesWritten property is not writable');
+			t.false(props.configurable,		'bytesWritten property is not configurable');
+			t.type(props.get, 'function',	'bytesWritten property has a getter');
+			t.equal(props.set, undefined,	'bytesWritten property does not have a setter');
+			t.equal(this.bytesWritten,	0,	'Connection has zero bytes read');
+
+			connection.emit('ping');
+
+			// The overhead comes from the fact that 'ping' is converted into
+			// a JSON "[ 'ping' ]" during the network serialization process.
+			t.equal(this.bytesWritten,	9,	'Connection has 9 bytes written');
+
+			connection.destroy();
+		}).once('close', function() {
+			t.end();
+		});
+	});
+
 	test('Ensure the _options property', function(t) {
 		var connection = new Connection({port: port}), props;
 
