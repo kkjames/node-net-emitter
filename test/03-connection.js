@@ -241,6 +241,14 @@
 		t.end();
 	});
 
+	test('Testing creating connection with a timeout', function(t) {
+		var connection = new Connection({port: port, timeout: 1000});
+		connection.once('timeout', function() {
+			this.destroy();
+			t.end();
+		});
+	});
+
 	test('Clean up', function(t) {
 		server.close(function() {
 			t.end();
